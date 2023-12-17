@@ -26,16 +26,17 @@ int main()
     int vvod;
     Student list[100];
     int n = 0;
-    char t[100];
+    char t[1000];
     bool Flag = true;
     int jk = 0;
-
+    int yk = 0;
     ofstream lout;
-    cout << "Номера команды: \n1. Добавлять элементов в конце списка\n2. Удалить студента по ФИО\n3. Вставить студента на указанную списку\n4. Отредактировать данные студента на указанные позиции\n5. Отсортировать студентов в списке по возрастанию среднего балла\n6. Вывести всех студентов указанной группы\n7. Очистить список\n8. Сохранить список в файл\n0. Выход из программ\n";
+    ifstream lin;
+    cout << "Номера команды: \n1. Добавлять элементов в конце списка\n2. Удалить студента по ФИО\n3. Вставить студента на указанную списку\n4. Отредактировать данные студента на указанные позиции\n5. Отсортировать студентов в списке по возрастанию среднего балла\n6. Вывести всех студентов указанной группы\n7. Очистить список\n8. Сохранить список в файл\n9. Загрузить список из файла\n0. Выход из программ\n";
     while (Flag) {
         cout << "Введите номер команды: ";
         cin >> vvod;
-        cin.getline(t, 100);
+        cin.getline(t, 1000);
         switch (vvod) {
         case 1:
             cout << "Введите ФИО студента: ";
@@ -46,12 +47,12 @@ int main()
             for (int j = 0; j < 3; j++) {
                 cin >> list[n].Ochenka[j];
             }
-            cin.getline(t, 100);
+            cin.getline(t, 1000);
             n++;
             break;
         case 2:
             cout << "Введите ФИО студента: ";
-            cin.getline(t, 100);
+            cin.getline(t, 1000);
             for (int i = 0; i < n; i++) {
                 if (strcmp(t, list[i].Name) == 0) {
                     for (int j = i; j < n - 1; j++) {
@@ -65,7 +66,7 @@ int main()
         case 3:
             cout << "Введите номер от 1 до " << n << " включительно: ";
             cin >> jk;
-            cin.getline(t, 100);
+            cin.getline(t, 1000);
             Student pd = list[jk - 2];
             cout << "Введите ФИО студента: ";
             cin.getline(list[jk-2].Name, 100);
@@ -75,7 +76,7 @@ int main()
             for (int j = 0; j < 3; j++) {
                 cin >> list[jk-2].Ochenka[j];
             }
-            cin.getline(t, 100);
+            cin.getline(t, 1000);
             for (int i = n; i > jk-2; i--) {
                 list[i] = list[i - 1];
             }
@@ -95,7 +96,8 @@ int main()
             }
             break;
         case 6:
-            cin.getline(t, 100);
+            cout << "Введите название группы: ";
+            cin.getline(t, 1000);
             for (int i = 0; i < n; i++) {
                 if (strcmp(t, list[i].Group) == 0) {
                     cout << "ФИО студента: " << list[i].Name << " - Группа студента: " << list[i].Group << " - Оценка по 3 предметам: " << srball(list[i]) << endl;
@@ -108,7 +110,7 @@ int main()
         case 4:
             cout << "Введите номер от 1 до " << n <<" включительно: ";
             cin >> jk;
-            cin.getline(t, 100);
+            cin.getline(t, 1000);
             cout << "Введите ФИО студента: ";
             cin.getline(list[jk-1].Name, 100);
             cout << "Введите группу студента: ";
@@ -121,14 +123,73 @@ int main()
             break;
         case 8:
             cout << "Введите название файла: ";
-            cin.getline(t, 100);
-            lout.open(t);
-            lout << n << endl;
-            for (int i = 0; i < n; i++) {
-                lout << list[i].Name << ";" << list[i].Group << ";" << list[i].Ochenka[0] << ";" << list[i].Ochenka[1] << ";" << list[i].Ochenka[2] << endl;
+            cin.getline(t, 1000);
+            yk = strlen(t);
+            if ((t[yk - 1] == 't') && (t[yk - 1 - 1] == 'x') && (t[yk - 1 - 2] == 't') && (t[yk - 1 - 3] == '.')) {
+                lout.open(t);
+                lout << n << endl;
+                for (int i = 0; i < n; i++) {
+                    lout << list[i].Name << ";" << list[i].Group << ";" << list[i].Ochenka[0] << ";" << list[i].Ochenka[1] << ";" << list[i].Ochenka[2] << endl;
+                }
+                lout.close();
             }
-            lout.close();
+            else {
+                lout.open(t, ios::binary);
+                lout.write((char*)&n, sizeof(n));
+                for (int i = 0; i < n; i++) {
+                    lout.write(list[i].Name, sizeof(list[i].Name));
+                    lout.write(list[i].Group, sizeof(list[i].Group));
+                    for (int j = 0; j < 3; j++) {
+                        lout.write((char*)&list[i].Ochenka[j], sizeof(list[i].Ochenka[j]));
+                    }
+                }
+                lout.close();
+            }
+            
             cout << "Файл сохранён!";
+            break;
+        case 9:
+            cout << "Введите название файла: ";
+            cin.getline(t, 1000);
+            yk = strlen(t);
+            if ((t[yk - 1] == 't') && (t[yk - 1 - 1] == 'x') && (t[yk - 1 - 2] == 't') && (t[yk - 1 - 3] == '.')) {
+                lin.open(t);
+                if (!lin) {
+                    cout << "Не был найден данный файл" << endl;
+                }
+                else {
+                    lin.getline(t, 100);
+                    n = atoi(t);
+                    for (int i = 0; i < n; i++) {
+                        lin.getline(t, 100);
+                        strcpy(list[i].Name, strtok(t, ";"));
+                        strcpy(list[i].Group, strtok(nullptr, ";"));
+                        for (int j = 0; j < 3; j++) {
+                            list[i].Ochenka[j] = atoi(strtok(nullptr, ";"));
+                        }
+                    }
+                    cout << "Было загружено список" << endl;
+                }
+            }
+            else {
+                lin.open(t, ios::binary);
+                if (!lin) {
+                    cout << "Не был найден данный файл" << endl;
+                } else {
+                    lin.read((char*)&n, sizeof(n));
+                    for (int i = 0; i < n; i++) {
+                        lin.read(list[i].Name, sizeof(list[i].Name));
+                        lin.read(list[i].Group, sizeof(list[i].Group));
+                        for (int j = 0; j < 3; j++) {
+                            lin.read((char*)&list[i].Ochenka[j], sizeof(list[i].Ochenka[j]));
+                        }
+                    }
+                    cout << "Было загружено список" << endl;
+                }
+            }
+            
+            lin.close();
+            
             break;
         case 0:
             Flag = false;
